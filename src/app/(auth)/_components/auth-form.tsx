@@ -4,14 +4,11 @@
 import {
   Card,
   CardContent,
-  CardDescription,
   CardHeader,
   CardTitle,
 } from "~/components/ui/card"
 import { signIn } from "next-auth/react"
 import { FaGoogle as GoogleIcon } from "react-icons/fa"
-import { Label } from "~/components/ui/label"
-import { Input } from "~/components/ui/input"
 import { Button } from "~/components/ui/button"
 
 export function AuthForm({ mode = "login" }: { mode?: "login" | "signup" }) {
@@ -24,7 +21,7 @@ export function AuthForm({ mode = "login" }: { mode?: "login" | "signup" }) {
           </CardTitle>
         </CardHeader>
         <CardContent className="flex flex-col w-full gap-4">
-          <Button variant="outline" className="w-full" onClick={() => signIn('google', { callbackUrl: '/' })}>
+          <Button variant="outline" className="w-full" onClick={() => signIn('google', { callbackUrl: '/projects' })}>
             <GoogleIcon />
             {mode === "login" ? "Login with Google" : "Sign up with Google"}
           </Button>
