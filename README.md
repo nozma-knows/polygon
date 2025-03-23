@@ -1,4 +1,4 @@
-# Polygon
+# Polygon clone
 
 Polygon is an open-source 3D modeling tool for the AI future. Built off of [T3 Stack](https://create.t3.gg/) and using the following tech:
 
