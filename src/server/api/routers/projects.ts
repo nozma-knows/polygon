@@ -1,10 +1,21 @@
 import { z } from "zod";
-
+import { Prisma } from "@prisma/client";
 import {
   createTRPCRouter,
   protectedProcedure,
 } from "~/server/api/trpc";
 import { CreateProjectSchema, ProjectSchema, UpdateProjectSchema } from "~/validators/projects";
+import { parseDocument } from "./documents";
+import type { Project } from "~/validators/projects";
+
+type ProjectWithDocuments = Prisma.ProjectGetPayload<{
+  include: { documents: true };
+}>;
+
+export const parseProject = (dbProject: ProjectWithDocuments): Project => ({
+  ...dbProject,
+  documents: dbProject.documents.map(parseDocument)
+});
 
 export const projectRouter = createTRPCRouter({
   create: protectedProcedure
@@ -44,7 +55,7 @@ export const projectRouter = createTRPCRouter({
         });
       });
 
-      return project;
+      return parseProject(project);
     }),
 
   get: protectedProcedure
@@ -64,7 +75,7 @@ export const projectRouter = createTRPCRouter({
         throw new Error("Project not found");
       }
 
-      return project;
+      return parseProject(project);
     }),
 
   getAll: protectedProcedure
@@ -73,7 +84,8 @@ export const projectRouter = createTRPCRouter({
       const projects = await ctx.db.project.findMany({
         include: { documents: true },
       });
-      return projects;
+      
+      return projects.map(project => parseProject(project));
     }),
 
   // Soft delete
@@ -107,7 +119,7 @@ export const projectRouter = createTRPCRouter({
         },
       });
 
-      return project;
+      return parseProject(project);
     }),
   
   addDocument: protectedProcedure
@@ -128,6 +140,6 @@ export const projectRouter = createTRPCRouter({
         },
       });
 
-      return project;
+      return parseProject(project);
     }),
 });

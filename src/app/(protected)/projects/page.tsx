@@ -35,7 +35,7 @@ export default function ProjectsPage() {
       
       {projects?.length === 0 ? (
         <div className="flex flex-col items-center justify-center h-64 border border-dashed rounded-lg p-6">
-          <P className="text-muted-foreground text-center mb-4">You don't have any projects yet</P>
+          <P className="text-muted-foreground text-center mb-4">{`You don't have any projects yet`}</P>
           <Button variant="outline" onClick={() => createProject.mutate({ name: "New Project", description: null })}>
             <PlusIcon className="size-4 mr-2" />
             Create your first project

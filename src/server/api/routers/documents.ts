@@ -1,10 +1,20 @@
+import { Prisma } from "@prisma/client";
 import { z } from "zod";
 
 import {
   createTRPCRouter,
   protectedProcedure,
 } from "~/server/api/trpc";
-import { CreateDocumentSchema, DocumentSchema, UpdateDocumentSchema } from "~/validators/documents";
+import { CreateDocumentSchema, DocumentSchema, DocumentStateSchema, UpdateDocumentSchema } from "~/validators/documents";
+import type { Document } from "~/validators/documents";
+
+// Helper function to parse document state
+export const parseDocument = (dbDocument: Prisma.DocumentGetPayload<object>): Document => {
+  return {
+    ...dbDocument,
+    state: DocumentStateSchema.parse(dbDocument.state ?? { actions: [] })
+  };
+};
 
 export const documentRouter = createTRPCRouter({
   create: protectedProcedure
@@ -20,10 +30,13 @@ export const documentRouter = createTRPCRouter({
         data: {
           name: input.name,
           projectId: input.projectId,
+          state: {
+            actions: [],
+          },
         },
       });
 
-      return document;
+      return parseDocument(document);
     }),
 
   get: protectedProcedure
@@ -40,14 +53,14 @@ export const documentRouter = createTRPCRouter({
         throw new Error("Document not found");
       }
 
-      return document;
+      return parseDocument(document);
     }),
 
   getAll: protectedProcedure
     .output(z.array(DocumentSchema))
     .query(async ({ ctx }) => {
       const documents = await ctx.db.document.findMany();
-      return documents;
+      return documents.map(parseDocument);
     }),
 
   // Soft delete
@@ -78,6 +91,6 @@ export const documentRouter = createTRPCRouter({
         },
       });
 
-      return document;
+      return parseDocument(document);
     }),
 });
